@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evento Online - Harvey Sarmiento</title>
+    <meta name="description" content="Evento Online Exclusivo - Harvey Sarmiento. Resultados garantizados desde tus primeros 10 días.">
+
+
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com"></script>
+
+<!-- React y ReactDOM -->
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+
+<!-- Babel para JSX -->
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+<!-- Lucide Icons -->
+<script src="https://unpkg.com/lucide@latest"></script>
+
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+    }
+    #root {
+        min-height: 100vh;
+    }
+</style>
+
+
+</head>
+<body>
+    <div id="root"></div>
+
+
+<script type="text/babel">
+    const { useState, useEffect } = React;
+    const { Gift, Zap, TrendingUp } = lucide;
+
+    function EventoOnline() {
+        const [eventActive, setEventActive] = useState(true);
+        const [progress, setProgress] = useState(5);
+        const [surpriseNumbers, setSurpriseNumbers] = useState([]);
+        const [showAdmin, setShowAdmin] = useState(false);
+        const [isAuthenticated, setIsAuthenticated] = useState(false);
+        const [passwordInput, setPasswordInput] = useState('');
+        const [showPasswordError, setShowPasswordError] = useState(false);
+
+        // 🔐 CONTRASEÑA DE ADMINISTRADOR
+        const ADMIN_PASSWORD = '123510201819';
+
+        const paymentLink = 'https://checkout.bold.co/payment/LNK_ZNBQIFJLGN';
+        const whatsappNumber = '573015619137';
+        const whatsappMessage = encodeURIComponent('¡Hola Harvey! Ya realicé el pago de los 10 stickers. Te envío el comprobante 📸');
+
+        // Generar números sorpresa al iniciar evento
+        useEffect(() => {
+            if (eventActive && surpriseNumbers.length === 0) {
+                generateSurpriseNumbers();
+            }
+        }, [eventActive]);
+
+        // Simular progreso de ventas automático
+        useEffect(() => {
+            if (!eventActive) return;
+            
+            const progressSteps = [5, 10, 20, 35, 50, 65, 75, 85, 90, 95];
+            let currentStep = 0;
+            
+            const interval = setInterval(() => {
+                if (currentStep < progressSteps.length) {
+                    setProgress(progressSteps[currentStep]);
+                    currentStep++;
+                }
+            }, 45000);
+
+            return () => clearInterval(interval);
+        }, [eventActive]);
+
+        const generateSurpriseNumbers = () => {
+            const numbers = new Set();
+            while (numbers.size < 10) {
+                const num = Math.floor(1000 + Math.random() * 9000);
+                numbers.add(num);
+            }
+            setSurpriseNumbers(Array.from(numbers).sort((a, b) => a - b));
+        };
+
+        const startNewEvent = () => {
+            setEventActive(true);
+            setProgress(5);
+            generateSurpriseNumbers();
+            setShowAdmin(false);
+            setIsAuthenticated(false);
+            setPasswordInput('');
+        };
+
+        const endEvent = () => {
+            setEventActive(false);
+            setSurpriseNumbers([]);
+            setShowAdmin(false);
+            setIsAuthenticated(false);
+            setPasswordInput('');
+        };
+
+        const handleAdminClick = () => {
+            if (!isAuthenticated) {
+                setShowAdmin(true);
+            } else {
+                setShowAdmin(!showAdmin);
+            }
+        };
+
+        const handlePasswordSubmit = (e) => {
+            e.preventDefault();
+            if (passwordInput === ADMIN_PASSWORD) {
+                setIsAuthenticated(true);
+                setShowPasswordError(false);
+                setPasswordInput('');
+            } else {
+                setShowPasswordError(true);
+                setTimeout(() => setShowPasswordError(false), 3000);
+            }
+        };
+
+        const handlePurchase = () => {
+            window.open(paymentLink, '_blank');
+            setTimeout(() => {
+                window.open(`https://wa.me/${whatsappNumber}?text=${whatsappMessage}`, '_blank');
+            }, 2000);
+        };
+
+        if (!eventActive) {
+            return (
+                <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center p-4">
+                    <div className="text-center">
+                        <h2 className="text-3xl font-bold text-white mb-4">Evento Finalizado</h2>
+                        <p className="text-gray-400 mb-8">Pronto iniciaremos un nuevo evento</p>
+                        <button
+                            onClick={() => setShowAdmin(!showAdmin)}
+                            className="text-gray-500 text-sm"
+                        >
+                            Admin
+                        </button>
+                        {showAdmin && !isAuthenticated && (
+                            <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+                                <div className="bg-gray-800 rounded-xl p-8 max-w-md w-full shadow-2xl">
+                                    <h3 className="text-2xl font-bold text-white mb-4 text-center">
+                                        🔐 Acceso Administrativo
+                                    </h3>
+                                    <form onSubmit={handlePasswordSubmit}>
+                                        <input
+                                            type="password"
+                                            value={passwordInput}
+                                            onChange={(e) => setPasswordInput(e.target.value)}
+                                            placeholder="Ingresa la contraseña"
+                                            className="w-full px-4 py-3 bg-gray-700 text-white rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-green-500"
+                                            autoFocus
+                                        />
+                                        {showPasswordError && (
+                                            <p className="text-red-400 text-sm mb-4 text-center">
+                                                ❌ Contraseña incorrecta
+                                            </p>
+                                        )}
+                                        <div className="flex gap-3">
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    setShowAdmin(false);
+                                                    setPasswordInput('');
+                                                    setShowPasswordError(false);
+                                                }}
+                                                className="flex-1 px-4 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
+                                            >
+                                                Cancelar
+                                            </button>
+                                            <button
+                                                type="submit"
+                                                className="flex-1 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-semibold"
+                                            >
+                                                Entrar
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        )}
+                        {showAdmin && isAuthenticated && (
+                            <button
+                                onClick={startNewEvent}
+                                className="mt-4 px-6 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700"
+                            >
+                                Iniciar Nuevo Evento
+                            </button>
+                        )}
+                    </div>
+                </div>
+            );
+        }
+
+        return (
+            <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900">
+                {/* Admin Button */}
+                <button
+                    onClick={handleAdminClick}
+                    className="fixed top-4 right-4 text-xs text-gray-500 opacity-30 hover:opacity-100"
+                >
+                    •••
+                </button>
+
+                {/* Password Modal */}
+                {showAdmin && !isAuthenticated && (
+                    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+                        <div className="bg-gray-800 rounded-xl p-8 max-w-md w-full shadow-2xl">
+                            <h3 className="text-2xl font-bold text-white mb-4 text-center">
+                                🔐 Acceso Administrativo
+                            </h3>
+                            <form onSubmit={handlePasswordSubmit}>
+                                <input
+                                    type="password"
+                                    value={passwordInput}
+                                    onChange={(e) => setPasswordInput(e.target.value)}
+                                    placeholder="Ingresa la contraseña"
+                                    className="w-full px-4 py-3 bg-gray-700 text-white rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                    autoFocus
+                                />
+                                {showPasswordError && (
+                                    <p className="text-red-400 text-sm mb-4 text-center">
+                                        ❌ Contraseña incorrecta
+                                    </p>
+                                )}
+                                <div className="flex gap-3">
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setShowAdmin(false);
+                                            setPasswordInput('');
+                                            setShowPasswordError(false);
+                                        }}
+                                        className="flex-1 px-4 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
+                                    >
+                                        Cancelar
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        className="flex-1 px-4 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 font-semibold"
+                                    >
+                                        Entrar
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                )}
+
+                {/* Admin Panel */}
+                {showAdmin && isAuthenticated && (
+                    <div className="fixed top-16 right-4 bg-gray-800 p-4 rounded-lg shadow-xl z-50">
+                        <p className="text-green-400 text-xs mb-3 text-center">✓ Autenticado</p>
+                        <button
+                            onClick={endEvent}
+                            className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 text-sm w-full"
+                        >
+                            Terminar Evento
+                        </button>
+                    </div>
+                )}
+
+                <div className="container mx-auto px-4 py-12 max-w-4xl">
+                    {/* Header */}
+                    <div className="text-center mb-8">
+                        <div className="inline-block bg-yellow-400 text-black px-6 py-2 rounded-full font-bold text-sm mb-4 animate-pulse">
+                            🔥 EVENTO ONLINE EXCLUSIVO 🔥
+                        </div>
+                        <h1 className="text-5xl md:text-6xl font-bold text-white mb-4 drop-shadow-lg">
+                            Harvey Sarmiento
+                        </h1>
+                        <p className="text-2xl md:text-3xl text-yellow-300 font-semibold">
+                            Resultados Garantizados desde tus primeros 10 días
+                        </p>
+                    </div>
+
+                    {/* Progress Bar */}
+                    <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 mb-8 shadow-2xl">
+                        <div className="flex items-center justify-between mb-3">
+                            <span className="text-white font-semibold flex items-center gap-2">
+                                <i data-lucide="trending-up" className="w-5 h-5"></i>
+                                Stickers Vendidos
+                            </span>
+                            <span className="text-yellow-300 font-bold text-xl">{progress}%</span>
+                        </div>
+                        <div className="w-full bg-gray-700 rounded-full h-6 overflow-hidden">
+                            <div
+                                className="bg-gradient-to-r from-green-400 to-yellow-400 h-full rounded-full transition-all duration-1000 flex items-center justify-end pr-2"
+                                style={{ width: `${progress}%` }}
+                            >
+                                <i data-lucide="zap" className="w-4 h-4 text-white"></i>
+                            </div>
+                        </div>
+                        <p className="text-red-400 text-sm mt-2 font-semibold text-center">
+                            ⚡ ¡Quedan pocos! No te quedes sin tu oportunidad
+                        </p>
+                    </div>
+
+                    {/* Purchase Button */}
+                    <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 mb-8 shadow-2xl text-center">
+                        <div className="mb-6">
+                            <p className="text-white text-lg mb-2">Adquiere tus</p>
+                            <p className="text-5xl font-bold text-yellow-300 mb-2">10 Stickers</p>
+                            <p className="text-4xl font-bold text-white">$12,000 COP</p>
+                        </div>
+                        <button
+                            onClick={handlePurchase}
+                            className="w-full bg-gradient-to-r from-yellow-400 to-orange-500 text-black text-xl font-bold py-6 rounded-xl hover:from-yellow-500 hover:to-orange-600 transform hover:scale-105 transition-all shadow-lg"
+                        >
+                            🎁 COMPRAR AHORA
+                        </button>
+                        <p className="text-gray-300 text-sm mt-4">
+                            Al comprar, recibirás tus stickers automáticamente
+                        </p>
+                    </div>
+
+                    {/* Surprise Numbers */}
+                    <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 shadow-2xl">
+                        <div className="text-center mb-6">
+                            <i data-lucide="gift" className="w-12 h-12 text-yellow-300 mx-auto mb-3"></i>
+                            <h2 className="text-3xl font-bold text-white mb-2">
+                                🎉 Stickers Sorpresa 🎉
+                            </h2>
+                            <p className="text-yellow-300 font-semibold">
+                                ¡Estos números tienen premios especiales!
+                            </p>
+                        </div>
+                        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                            {surpriseNumbers.map((num) => (
+                                <div
+                                    key={num}
+                                    className="bg-gradient-to-br from-purple-600 to-pink-600 rounded-lg p-4 text-center transform hover:scale-110 transition-all shadow-lg"
+                                >
+                                    <p className="text-3xl font-bold text-white">{num}</p>
+                                </div>
+                            ))}
+                        </div>
+                        <p className="text-center text-gray-300 text-sm mt-6">
+                            💫 Si te toca uno de estos números, ¡tienes premio adicional!
+                        </p>
+                    </div>
+
+                    {/* Footer */}
+                    <div className="text-center mt-8 text-gray-400 text-sm">
+                        <p>Al realizar tu compra, envía tu comprobante por WhatsApp</p>
+                        <p className="text-yellow-300 font-semibold">Harvey Sarmiento - Asesorías Profesionales</p>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    // Renderizar la aplicación
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<EventoOnline />);
+
+    // Inicializar iconos de Lucide
+    lucide.createIcons();
+</script>
+
+
+</body>
+</html>
